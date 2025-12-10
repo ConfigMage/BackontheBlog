@@ -57,7 +57,7 @@ export default function SearchBar() {
       <button
         type="submit"
         disabled={isPending}
-        className="px-4 py-2 bg-terminal-accent text-terminal-bg font-medium rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
+        className="px-4 py-2 bg-terminal-accent text-black font-medium rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
       >
         {isPending ? "..." : "Search"}
       </button>

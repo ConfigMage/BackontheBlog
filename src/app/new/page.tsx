@@ -149,7 +149,7 @@ Get-Process | Where-Object { $_.CPU -gt 100 }
           <div className="flex gap-4">
             <button
               type="submit"
-              className="px-6 py-2 bg-terminal-accent text-terminal-bg font-medium rounded-md hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-terminal-accent focus:ring-offset-2 focus:ring-offset-terminal-surface"
+              className="px-6 py-2 bg-terminal-accent text-black font-medium rounded-md hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-terminal-accent focus:ring-offset-2 focus:ring-offset-terminal-surface"
             >
               Publish Post
             </button>

@@ -12,7 +12,9 @@
       "Bash(ls:*)",
       "Bash(git remote add:*)",
       "Bash(git branch:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit: Code snippet sharing webapp\n\n- Next.js 16 with App Router and TypeScript\n- Tailwind CSS v4 with Terminal Minimal dark theme\n- Neon PostgreSQL integration for serverless database\n- Password-protected access with cookie-based auth\n- Blog-style posts with markdown and syntax highlighting\n- Reply system with markdown support\n- Author selector (ConfigMage/DarkForestMushroom)\n- Search functionality for posts\n- WCAG AAA compliant contrast ratios\n- Mobile responsive design\n- Skip-to-content accessibility link\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit: Code snippet sharing webapp\n\n- Next.js 16 with App Router and TypeScript\n- Tailwind CSS v4 with Terminal Minimal dark theme\n- Neon PostgreSQL integration for serverless database\n- Password-protected access with cookie-based auth\n- Blog-style posts with markdown and syntax highlighting\n- Reply system with markdown support\n- Author selector (ConfigMage/DarkForestMushroom)\n- Search functionality for posts\n- WCAG AAA compliant contrast ratios\n- Mobile responsive design\n- Skip-to-content accessibility link\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

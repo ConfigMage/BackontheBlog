@@ -47,7 +47,7 @@ export default async function HomePage({
         </div>
         <Link
           href="/new"
-          className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-terminal-accent text-terminal-bg font-medium rounded-md hover:opacity-90 transition-opacity"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-terminal-accent text-black font-medium rounded-md hover:opacity-90 transition-opacity"
         >
           <svg
             className="w-4 h-4"
