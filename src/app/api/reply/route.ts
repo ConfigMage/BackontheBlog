@@ -12,10 +12,10 @@ export async function POST(request: NextRequest) {
     return redirect("/login");
   }
 
-  try {
-    const formData = await request.formData();
+  const formData = await request.formData();
+  const postId = formData.get("postId") as string;
 
-    const postId = formData.get("postId") as string;
+  try {
     const content = formData.get("content") as string;
     const author = formData.get("author") as string;
 
@@ -45,9 +45,11 @@ export async function POST(request: NextRequest) {
 
     return redirect(`/post/${postId}`);
   } catch (error) {
+    // Re-throw redirect errors (they're not real errors)
+    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
+      throw error;
+    }
     console.error("Reply creation error:", error);
-    const formData = await request.formData().catch(() => null);
-    const postId = formData?.get("postId") || "";
     return redirect(`/post/${postId}?error=1`);
   }
 }

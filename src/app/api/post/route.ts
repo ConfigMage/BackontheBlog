@@ -50,6 +50,10 @@ export async function POST(request: NextRequest) {
 
     return redirect(`/post/${post.id}`);
   } catch (error) {
+    // Re-throw redirect errors (they're not real errors)
+    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
+      throw error;
+    }
     console.error("Post creation error:", error);
     return redirect("/new?error=1");
   }
