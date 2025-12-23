@@ -1,26 +1,12 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { isAuthenticated } from "@/lib/auth";
-import { getPost, getReplies, createReply } from "@/lib/db";
+import { getPost, getReplies, getAttachmentsForPost } from "@/lib/db";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
-import AuthorSelect from "@/components/AuthorSelect";
+import AttachmentDisplay from "@/components/AttachmentDisplay";
+import ReplyForm from "@/components/ReplyForm";
 
 export const dynamic = "force-dynamic";
-
-async function createReplyAction(formData: FormData) {
-  "use server";
-
-  const postId = formData.get("postId") as string;
-  const content = formData.get("content") as string;
-  const author = formData.get("author") as string;
-
-  if (!postId || !content?.trim() || !author) {
-    redirect(`/post/${postId}?error=1`);
-  }
-
-  await createReply(parseInt(postId), content.trim(), author);
-  redirect(`/post/${postId}`);
-}
 
 export default async function PostPage({
   params,
@@ -47,6 +33,7 @@ export default async function PostPage({
   }
 
   const replies = await getReplies(postId);
+  const { postAttachments, replyAttachments } = await getAttachmentsForPost(postId);
   const searchParamsValue = await searchParams;
   const hasError = searchParamsValue.error === "1";
 
@@ -100,6 +87,7 @@ export default async function PostPage({
 
         <div className="border-t border-terminal-border pt-6">
           <MarkdownRenderer content={post.content} />
+          <AttachmentDisplay attachments={postAttachments} />
         </div>
       </article>
 
@@ -125,6 +113,8 @@ export default async function PostPage({
                 }
               );
 
+              const attachments = replyAttachments.get(reply.id) || [];
+
               return (
                 <div
                   key={reply.id}
@@ -139,6 +129,7 @@ export default async function PostPage({
                   </div>
                   <div className="text-sm">
                     <MarkdownRenderer content={reply.content} />
+                    <AttachmentDisplay attachments={attachments} />
                   </div>
                 </div>
               );
@@ -146,63 +137,7 @@ export default async function PostPage({
           </div>
         )}
 
-        <div className="bg-terminal-surface border border-terminal-border rounded-lg p-6">
-          <h3 className="text-lg font-medium text-terminal-text mb-4">
-            Add a Reply
-          </h3>
-
-          {hasError && (
-            <div
-              className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-md"
-              role="alert"
-            >
-              <p className="text-red-400 text-sm">
-                Please fill in all required fields (content and author).
-              </p>
-            </div>
-          )}
-
-          <form action={createReplyAction} className="space-y-4">
-            <input type="hidden" name="postId" value={post.id} />
-
-            <div>
-              <label
-                htmlFor="reply-author"
-                className="block text-sm font-medium text-terminal-text mb-2"
-              >
-                Author <span className="text-red-400">*</span>
-              </label>
-              <AuthorSelect name="author" required />
-            </div>
-
-            <div>
-              <label
-                htmlFor="reply-content"
-                className="block text-sm font-medium text-terminal-text mb-2"
-              >
-                Reply <span className="text-red-400">*</span>
-              </label>
-              <p className="text-xs text-terminal-muted mb-2">
-                Supports Markdown. Use ```language for code blocks.
-              </p>
-              <textarea
-                id="reply-content"
-                name="content"
-                required
-                rows={6}
-                placeholder="Write your reply..."
-                className="w-full bg-terminal-bg border border-terminal-border text-terminal-text rounded-md px-4 py-3 focus:border-terminal-accent focus:outline-none font-mono text-sm resize-y"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="px-6 py-2 bg-terminal-accent text-black font-medium rounded-md hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-terminal-accent focus:ring-offset-2 focus:ring-offset-terminal-surface"
-            >
-              Post Reply
-            </button>
-          </form>
-        </div>
+        <ReplyForm postId={post.id} hasError={hasError} />
       </section>
     </div>
   );

@@ -26,6 +26,17 @@ export interface Reply {
   created_at: string;
 }
 
+export interface Attachment {
+  id: number;
+  post_id: number | null;
+  reply_id: number | null;
+  file_name: string;
+  file_url: string;
+  file_type: string;
+  file_size: number;
+  created_at: string;
+}
+
 export async function initializeDatabase() {
   const db = getSQL();
   await db`
@@ -55,6 +66,27 @@ export async function initializeDatabase() {
 
   await db`
     CREATE INDEX IF NOT EXISTS idx_replies_post_id ON replies(post_id)
+  `;
+
+  await db`
+    CREATE TABLE IF NOT EXISTS attachments (
+      id SERIAL PRIMARY KEY,
+      post_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
+      reply_id INTEGER REFERENCES replies(id) ON DELETE CASCADE,
+      file_name VARCHAR(255) NOT NULL,
+      file_url TEXT NOT NULL,
+      file_type VARCHAR(100),
+      file_size INTEGER,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    )
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS idx_attachments_post_id ON attachments(post_id)
+  `;
+
+  await db`
+    CREATE INDEX IF NOT EXISTS idx_attachments_reply_id ON attachments(reply_id)
   `;
 }
 
@@ -121,4 +153,77 @@ export async function createReply(postId: number, content: string, author: strin
   `;
   const replies = result as unknown as Reply[];
   return replies[0];
+}
+
+export async function createAttachment(
+  fileName: string,
+  fileUrl: string,
+  fileType: string,
+  fileSize: number,
+  postId?: number,
+  replyId?: number
+): Promise<Attachment> {
+  const db = getSQL();
+  const result = await db`
+    INSERT INTO attachments (post_id, reply_id, file_name, file_url, file_type, file_size)
+    VALUES (${postId ?? null}, ${replyId ?? null}, ${fileName}, ${fileUrl}, ${fileType}, ${fileSize})
+    RETURNING id, post_id, reply_id, file_name, file_url, file_type, file_size, created_at::text
+  `;
+  const attachments = result as unknown as Attachment[];
+  return attachments[0];
+}
+
+export async function getAttachmentsByPostId(postId: number): Promise<Attachment[]> {
+  const db = getSQL();
+  const result = await db`
+    SELECT id, post_id, reply_id, file_name, file_url, file_type, file_size, created_at::text
+    FROM attachments
+    WHERE post_id = ${postId}
+    ORDER BY created_at ASC
+  `;
+  return result as unknown as Attachment[];
+}
+
+export async function getAttachmentsByReplyId(replyId: number): Promise<Attachment[]> {
+  const db = getSQL();
+  const result = await db`
+    SELECT id, post_id, reply_id, file_name, file_url, file_type, file_size, created_at::text
+    FROM attachments
+    WHERE reply_id = ${replyId}
+    ORDER BY created_at ASC
+  `;
+  return result as unknown as Attachment[];
+}
+
+export async function getAttachmentsForPost(postId: number): Promise<{ postAttachments: Attachment[], replyAttachments: Map<number, Attachment[]> }> {
+  const db = getSQL();
+
+  const postAttachmentsResult = await db`
+    SELECT id, post_id, reply_id, file_name, file_url, file_type, file_size, created_at::text
+    FROM attachments
+    WHERE post_id = ${postId} AND reply_id IS NULL
+    ORDER BY created_at ASC
+  `;
+
+  const replyAttachmentsResult = await db`
+    SELECT a.id, a.post_id, a.reply_id, a.file_name, a.file_url, a.file_type, a.file_size, a.created_at::text
+    FROM attachments a
+    JOIN replies r ON a.reply_id = r.id
+    WHERE r.post_id = ${postId}
+    ORDER BY a.created_at ASC
+  `;
+
+  const replyAttachments = new Map<number, Attachment[]>();
+  for (const attachment of replyAttachmentsResult as unknown as Attachment[]) {
+    const replyId = attachment.reply_id!;
+    if (!replyAttachments.has(replyId)) {
+      replyAttachments.set(replyId, []);
+    }
+    replyAttachments.get(replyId)!.push(attachment);
+  }
+
+  return {
+    postAttachments: postAttachmentsResult as unknown as Attachment[],
+    replyAttachments
+  };
 }

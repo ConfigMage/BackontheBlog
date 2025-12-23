@@ -37,3 +37,4 @@ next-env.d.ts
 # IDE
 .idea
 .vscode
+BLOB_READ_WRITE_token.txt
