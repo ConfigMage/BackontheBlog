@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate file type
-    if (!ALLOWED_FILE_TYPES.includes(file.type) && !file.name.match(/\.(ts|tsx|js|jsx|py|rb|go|rs|java|cpp|c|h|hpp|cs|php|sh|bash|zsh|ps1|psm1|yml|yaml|toml|ini|conf|cfg|env|sql|md|mdx)$/i)) {
+    if (!ALLOWED_FILE_TYPES.includes(file.type) && !file.name.match(/\.(ts|tsx|js|jsx|py|rb|go|rs|java|cpp|c|h|hpp|cs|php|sh|bash|zsh|ps1|psm1|yml|yaml|toml|ini|conf|cfg|env|sql|md|mdx|doc|docx|xls|xlsx|xlsm|ppt|pptx)$/i)) {
       return NextResponse.json(
         { error: "File type not allowed" },
         { status: 400 }
